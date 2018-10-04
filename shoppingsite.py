@@ -82,20 +82,19 @@ def show_shopping_cart():
     total_order_cost = float()
 
     for melon_id in session['cart']:
-        
-        new_mel = get_by_id(melon_id)
-        quantity = session['cart']['melon_id']
-        
-        total_cost = (new_mel.price * quantity)
-        total_order_cost += total_cost
 
-        new_mel.quantity = quantity
-        new_mel.total = total_cost
-        
+        new_mel = melons.get_by_id(melon_id)
+        quantity = session['cart'][melon_id]
+
+        melon_subtotal = (new_mel.price * quantity)
+        total_order_cost += melon_subtotal
+
         melons_in_cart.append(new_mel)
 
-    
-    return render_template("cart.html")
+
+    return render_template("cart.html", melon_name=new_mel, quantity=quantity, 
+                            price=new_mel.price, melon_subtotal=melon_subtotal, 
+                            total_order_cost=total_order_cost)
 
 
 @app.route("/add_to_cart/<melon_id>")
@@ -122,7 +121,7 @@ def add_to_cart(melon_id):
 
     session['cart'][melon_id] = session['cart'].get(melon_id, 0) + 1
 
-    return "Oops! This needs to be implemented!"
+    return "Not finished yet"
 
 
 @app.route("/login", methods=["GET"])
