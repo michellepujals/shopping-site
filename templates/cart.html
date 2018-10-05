@@ -12,14 +12,14 @@
         </tr>
         </thead>
         <tbody>
+        {% for item in melons_in_cart %}
         <tr>
-        {% for item in session['cart']: %}
-            <td>{{ melon_name }} </td>
-            <td>{{ quantity }} </td>
-            <td> {{ price }} </td>
-            <td>{{ melon_subtotal }}</td>
-        {% endfor %}
+            <td>{{ item.common_name }} </td>
+            <td>{{ item.quantity }} </td>
+            <td> {{ item.price_str() }} </td>
+            <td>{{ item.melon_subtotal }}</td>
         </tr>
+        {% endfor %}
         </tbody>
     </table>
 

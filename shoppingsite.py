@@ -5,6 +5,7 @@ put melons in a shopping cart.
 
 Authors: Joel Burton, Christian Fernandez, Meggie Mahnken, Katie Byers.
 """
+from flask_debugtoolbar import DebugToolbarExtension
 
 from flask import Flask, render_template, redirect, flash, session
 import jinja2
@@ -12,6 +13,7 @@ import jinja2
 import melons
 
 app = Flask(__name__)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 # A secret key is needed to use Flask sessioning features
 
@@ -80,6 +82,8 @@ def show_shopping_cart():
 
     melons_in_cart = []
     total_order_cost = float()
+    if 'cart' not in session:
+        session['cart'] = {}
 
     for melon_id in session['cart']:
 
@@ -87,14 +91,17 @@ def show_shopping_cart():
         quantity = session['cart'][melon_id]
 
         melon_subtotal = (new_mel.price * quantity)
+        new_mel.quantity = quantity
         total_order_cost += melon_subtotal
+
+        new_mel.melon_subtotal = str(melon_subtotal)
 
         melons_in_cart.append(new_mel)
 
 
-    return render_template("cart.html", melon_name=new_mel, quantity=quantity, 
-                            price=new_mel.price, melon_subtotal=melon_subtotal, 
-                            total_order_cost=total_order_cost)
+    return render_template(
+        "cart.html", melons_in_cart=melons_in_cart, total_order_cost="{:.2f}".format(total_order_cost)
+        )
 
 
 @app.route("/add_to_cart/<melon_id>")
@@ -116,12 +123,17 @@ def add_to_cart(melon_id):
     # - flash a success message
     # - redirect the user to the cart page
 
+    # import pdb; pdb.set_trace()
+
     if 'cart' not in session:
         session['cart'] = {}
 
+
     session['cart'][melon_id] = session['cart'].get(melon_id, 0) + 1
 
-    return "Not finished yet"
+    flash("Item added to cart!")
+
+    return redirect("/cart")
 
 
 @app.route("/login", methods=["GET"])
@@ -168,4 +180,7 @@ def checkout():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.debug = True
+    DebugToolbarExtension(app)
+    app.run()
+
